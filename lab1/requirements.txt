@@ -1,0 +1,10 @@
+matplotlib==2.2.2
+pandas==0.22.0
+imbalanced_learn==0.3.3
+graphviz==0.8.3
+numpy==1.14.2
+seaborn==0.8.1
+CurrencyConverter==0.13.3
+currency_converter==0.5.5
+imblearn==0.0
+scikit_learn==0.19.1

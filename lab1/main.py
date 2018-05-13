@@ -4,8 +4,7 @@ from __future__ import division
 import pandas as pd
 import numpy as np
 from currency_converter import CurrencyConverter
-from utilities import fraud_heatmap
-from utilities import run_cross_validation
+from utilities import fraud_heatmap, run_cross_validation, derive_transaction_average_amount, derive_transaction_count
 import matplotlib.pyplot as plt
 import itertools
 import seaborn as sns
@@ -62,7 +61,7 @@ data_preproc = data_preproc.drop(['simple_journal'],axis=1)
 ## drop booking date as we may not use it for training
 data_preproc = data_preproc.drop(['bookingdate'],axis=1)
 
-print data_preproc
+print data_preproc.head()
 
 ## we remove attributes which are identifier (txid, card_id, mail_id, ip_id)
 print "Encoding data using one-hot encoding..."
@@ -92,7 +91,7 @@ data_encoded = np.array(data_encoded)
 
 
 # Visualization
-print "Visualization..."
+print "1. Visualization Task"
 ## Distribution Histogram
 fraud = data_preproc.loc[data_preproc['is_fraud'] == 1]
 non_fraud = data_preproc.loc[data_preproc['is_fraud'] == 0]
@@ -130,7 +129,7 @@ for combination in list(itertools.combinations(categorical_columns,2)):
     plt.show()
 
 # Imbalance Task
-print "Imbalance Task.."
+print "2. Imbalance Task1"
 ## create train test split
 print "Splitting train and test dataset"
 X_train, X_test, y_train, y_test = train_test_split(data_encoded_without_bin, labels, test_size=0.40, random_state=42)
@@ -218,7 +217,7 @@ for k in clf_dict.keys():
     plt.show()
 
 # Classification Task
-print "Classifier Task.."
+print "3. Classifier Task"
 
 print "-- Black Box: Random Forest-- "
 ## Black Box: Random Forest
@@ -241,7 +240,43 @@ dot_data = tree.export_graphviz(modelDT, out_file=None,
                          filled=True, rounded=True,  
                          special_characters=True, max_depth=5)  
 graph = graphviz.Source(dot_data)  
-graph.render("decision_tree_fraud")
+graph.render("figures/decision_tree_fraud")
 
 
 # Bonus Task
+## store data into new variable
+print "4. Bonus Task"
+data_derived = data_preproc.copy()
+print "Deriving attributes..."
+## derive the attributes
+derive_transaction_average_amount(data_derived) # deriving prev_transaction_
+derive_transaction_count(data_derived, based_on=["card_id"], column_name="prev_transaction_count")
+derive_transaction_count(data_derived, based_on=["card_id", "shoppercountrycode"], column_name="prev_transaction_count_shoppercountrycode")
+derive_transaction_count(data_derived, based_on=["card_id", "currencycode"], column_name="prev_transaction_count_currencycode")
+derive_transaction_count(data_derived, based_on=["card_id", "mail_id"], column_name="prev_transaction_count_mail_id")
+## encode the data with derived attributes
+print "Encoding data with derived attributes..." 
+data_derived_encoded = data_derived.copy()
+for x in data_derived_encoded.columns:
+    if data_derived_encoded[x].dtypes == np.dtype('O'):
+        data_derived_encoded = data_derived_encoded.drop([x], axis=1)
+       
+data_derived_encoded = data_derived_encoded.drop(['creationdate'], axis=1)
+
+labels = data_derived_encoded['is_fraud']
+data_derived_encoded = data_derived_encoded.drop(['is_fraud'], axis=1)
+
+data_derived_encoded = pd.get_dummies(data_derived_encoded, dummy_na=True)
+data_derived_encoded.head()
+
+feature_names = data_derived_encoded.columns
+
+labels = np.array(labels)
+data_derived_encoded = np.array(data_derived_encoded)
+
+print "Running cross-validation on encoded derived atributes..."
+## run cross validation on RandomForest
+clf = RandomForestClassifier(n_estimators=200, n_jobs=-1, max_depth=10, random_state=12)
+run_cross_validation(clf, data_derived_encoded, labels, threshold=0.6, verbose=True)
+
+print "FINISHED!"
