@@ -1,1 +1,2 @@
 lab1/data/data_for_student_case.csv filter=lfs diff=lfs merge=lfs -text
+lab2/dataset/BATADAL*.csv filter=lfs diff=lfs merge=lfs -text
