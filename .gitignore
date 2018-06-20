@@ -1,3 +1,4 @@
 **/*.ipynb_checkpoints/
 *.pyc
 *.pcap.netflow.labeled
+lab3/output/*.csv
