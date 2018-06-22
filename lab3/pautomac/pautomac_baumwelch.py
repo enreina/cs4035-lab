@@ -299,11 +299,16 @@ prev = -1.0
 ll = -1.0
 while prev == -1.0 or ll - prev > ll_bound:
     prev = ll
-    m = iterateEM(model,train+test)
-    probs = computeprobabilities(m,train+test)
+    m = iterateEM(model,train)
+    probs = computeprobabilities(m,train)
     ll = loglikelihood(probs)
     model = m
     print(("loglikelihood: ", ll))
     # writemodel(model)
 
-writeprobs(computeprobabilities(m,test),open(test_file+".bm","w"))
+print(("final model loglikelihood: ", ll))
+
+probs_test = computeprobabilities(m,test)
+writeprobs(probs_test,open(test_file+".bm","w"))
+ll_test = loglikelihood(probs_test)
+print(("loglikelihood on test data: ", ll_test))
