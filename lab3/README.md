@@ -36,4 +36,5 @@ and open each of the following .ipynb files for the respective task:
 2. [Sketching_Task.ipynb](https://github.com/enreina/cs4035-lab/blob/master/lab3/Sketching_Task.ipynb)
 3. [flow_discretization_task.ipynb](https://github.com/enreina/cs4035-lab/blob/master/lab3/flow_discretization_task.ipynb)
 4. [profiling.ipynb](https://github.com/enreina/cs4035-lab/blob/master/lab3/profiling.ipynb)
+5. [flow_classification_task.ipynb](https://github.com/enreina/cs4035-lab/blob/master/lab3/flow_classification_task.ipynb) (Bonus Task)
 
